@@ -6,12 +6,24 @@
   <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
   <style>
-    /* Essas mudanças podem ir no style.css também se preferir */
+    /* Botão mais pra baixo e transição para aparecer/desaparecer */
     #heartButton {
-      top: 60% !important; /* mais pra baixo */
+      top: 75% !important; /* bem abaixo do coração */
       opacity: 0;
       transition: opacity 1s ease;
-      display: block !important; /* para controlar via JS */
+      display: block !important;
+      left: 50%;
+      transform: translateX(-50%);
+      position: absolute;
+      background-color: #c71585;
+      color: white;
+      font-family: 'Great Vibes', cursive;
+      font-size: 1.5em;
+      border: 2px solid #ff69b4;
+      border-radius: 20px;
+      padding: 10px 30px;
+      cursor: pointer;
+      z-index: 10;
     }
 
     #heartButton.visible {
@@ -37,7 +49,7 @@
     const particles = [];
     const numParticles = 300;
     let inHeartMode = false;
-    let textTyped = false; // para digitar só uma vez
+    let textTyped = false;
 
     for (let i = 0; i < numParticles; i++) {
       particles.push({
@@ -98,11 +110,9 @@
 
     animate();
 
-    // Mostrar botão após 3 segundos com fade-in
     setTimeout(() => {
       const btn = document.getElementById("heartButton");
       btn.style.display = "block";
-      // Delay para garantir o display antes da transição
       setTimeout(() => btn.classList.add("visible"), 50);
     }, 3000);
 
@@ -115,7 +125,14 @@
       }
       inHeartMode = true;
 
-      // Digitar texto apenas uma vez
+      // sumir botão com fade out
+      const btn = document.getElementById("heartButton");
+      btn.classList.remove("visible");
+      setTimeout(() => {
+        btn.style.display = "none";
+      }, 1000);
+
+      // digitar texto só uma vez
       if (!textTyped) {
         const fullText = "É que\n eu te amo...";
         const textElement = document.getElementById("loveText");
