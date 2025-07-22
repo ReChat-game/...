@@ -1,160 +1,198 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" >
 <head>
   <meta charset="UTF-8" />
   <title>...</title>
   <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
-  <style>
-    /* Botão mais pra baixo e transição para aparecer/desaparecer */
-    #heartButton {
-      top: 75% !important; /* bem abaixo do coração */
-      opacity: 0;
-      transition: opacity 1s ease;
-      display: block !important;
-      left: 50%;
-      transform: translateX(-50%);
-      position: absolute;
-      background-color: #c71585;
-      color: white;
-      font-family: 'Great Vibes', cursive;
-      font-size: 1.5em;
-      border: 2px solid #ff69b4;
-      border-radius: 20px;
-      padding: 10px 30px;
-      cursor: pointer;
-      z-index: 10;
-    }
-
-    #heartButton.visible {
-      opacity: 1;
-    }
-
-    #loveText {
-      font-size: 2em !important; /* menor */
-    }
-  </style>
 </head>
 <body>
   <canvas id="particleCanvas"></canvas>
-  <button id="heartButton">Clique aqui</button>
-  <div id="loveText"></div>
+  <canvas id="heartParticlesCanvas"></canvas>
 
-  <script>
-    const canvas = document.getElementById("particleCanvas");
-    const ctx = canvas.getContext("2d");
+  <button id="heartButton">Clique aqui</button>
+  <div id="loveText">É que
+eu te amo...</div>
+
+<script>
+  const canvas = document.getElementById("particleCanvas");
+  const ctx = canvas.getContext("2d");
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const heartCanvas = document.getElementById("heartParticlesCanvas");
+  const heartCtx = heartCanvas.getContext("2d");
+  heartCanvas.width = window.innerWidth;
+  heartCanvas.height = window.innerHeight;
+
+  const particles = [];
+  const numParticles = 300;
+  let inHeartMode = false;
+  let textTyped = false;
+
+  for (let i = 0; i < numParticles; i++) {
+    particles.push({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      size: 3,
+      speedY: 0.3 + Math.random() * 0.5,
+      tx: null,
+      ty: null,
+    });
+  }
+
+  function generateHeartPoints() {
+    const points = [];
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+    const scale = 10;
+
+    for (let t = 0; t < Math.PI * 2; t += 0.05) {
+      const x = scale * 16 * Math.pow(Math.sin(t), 3);
+      const y =
+        -scale *
+        (13 * Math.cos(t) -
+          5 * Math.cos(2 * t) -
+          2 * Math.cos(3 * t) -
+          Math.cos(4 * t));
+      points.push({ x: centerX + x, y: centerY + y });
+    }
+
+    return points;
+  }
+
+  class HeartParticle {
+    constructor() {
+      this.reset();
+    }
+    reset() {
+      this.x = Math.random() * heartCanvas.width;
+      this.y = -20 - Math.random() * 100;
+      this.size = 15 + Math.random() * 10;
+      this.speedY = 0.5 + Math.random() * 1;
+      this.rotation = Math.random() * 2 * Math.PI;
+      this.rotationSpeed = (Math.random() - 0.5) * 0.05;
+      this.opacity = 0;
+      this.opacitySpeed = 0.01 + Math.random() * 0.02;
+    }
+    update() {
+      this.y += this.speedY;
+      this.rotation += this.rotationSpeed;
+      if (this.opacity < 1) this.opacity += this.opacitySpeed;
+      if (this.y > heartCanvas.height + this.size) this.reset();
+    }
+    draw(ctx) {
+      ctx.save();
+      ctx.translate(this.x, this.y);
+      ctx.rotate(this.rotation);
+      ctx.globalAlpha = this.opacity;
+
+      // Desenha coração simples (forma básica)
+      ctx.fillStyle = "#ff69b4";
+      ctx.beginPath();
+      const size = this.size / 2;
+      ctx.moveTo(0, size / 2);
+      ctx.bezierCurveTo(0, 0, -size, 0, -size, size / 2);
+      ctx.bezierCurveTo(-size, size, 0, size * 1.5, 0, size * 2);
+      ctx.bezierCurveTo(0, size * 1.5, size, size, size, size / 2);
+      ctx.bezierCurveTo(size, 0, 0, 0, 0, size / 2);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.restore();
+    }
+  }
+
+  const heartParticles = [];
+  let heartParticlesActive = false;
+
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    heartCtx.clearRect(0, 0, heartCanvas.width, heartCanvas.height);
+
+    for (let i = 0; i < particles.length; i++) {
+      const p = particles[i];
+
+      if (inHeartMode && p.tx !== null && p.ty !== null) {
+        p.x += (p.tx - p.x) * 0.02;
+        p.y += (p.ty - p.y) * 0.02;
+      } else {
+        p.y += p.speedY;
+        if (p.y > canvas.height) {
+          p.y = -10;
+          p.x = Math.random() * canvas.width;
+        }
+      }
+
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fillStyle = "#ff69b4";
+      ctx.fill();
+    }
+
+    if (heartParticlesActive) {
+      for (const hp of heartParticles) {
+        hp.update();
+        hp.draw(heartCtx);
+      }
+    }
+
+    requestAnimationFrame(animate);
+  }
+
+  animate();
+
+  setTimeout(() => {
+    const btn = document.getElementById("heartButton");
+    btn.style.display = "block";
+    setTimeout(() => btn.classList.add("visible"), 50);
+  }, 3000);
+
+  document.getElementById("heartButton").addEventListener("click", () => {
+    const heartPoints = generateHeartPoints();
+    for (let i = 0; i < particles.length; i++) {
+      const point = heartPoints[i % heartPoints.length];
+      particles[i].tx = point.x;
+      particles[i].ty = point.y;
+    }
+    inHeartMode = true;
+
+    const btn = document.getElementById("heartButton");
+    btn.classList.remove("visible");
+    setTimeout(() => {
+      btn.style.display = "none";
+    }, 1000);
+
+    if (!textTyped) {
+      const fullText = "É que\n eu te amo...";
+      const textElement = document.getElementById("loveText");
+      textElement.style.opacity = 1;
+
+      let index = 0;
+      function typeWriter() {
+        if (index <= fullText.length) {
+          textElement.textContent = fullText.slice(0, index);
+          index++;
+          setTimeout(typeWriter, 100);
+        }
+      }
+      setTimeout(typeWriter, 1000);
+      textTyped = true;
+
+      // Ativa partículas de coração caindo
+      for (let i = 0; i < 30; i++) {
+        heartParticles.push(new HeartParticle());
+      }
+      heartParticlesActive = true;
+    }
+  });
+
+  window.addEventListener("resize", () => {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-
-    const particles = [];
-    const numParticles = 300;
-    let inHeartMode = false;
-    let textTyped = false;
-
-    for (let i = 0; i < numParticles; i++) {
-      particles.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        size: 3,
-        speedY: 0.3 + Math.random() * 0.5,
-        tx: null,
-        ty: null,
-      });
-    }
-
-    function generateHeartPoints() {
-      const points = [];
-      const centerX = canvas.width / 2;
-      const centerY = canvas.height / 2;
-      const scale = 10;
-
-      for (let t = 0; t < Math.PI * 2; t += 0.05) {
-        const x = scale * 16 * Math.pow(Math.sin(t), 3);
-        const y =
-          -scale *
-          (13 * Math.cos(t) -
-            5 * Math.cos(2 * t) -
-            2 * Math.cos(3 * t) -
-            Math.cos(4 * t));
-        points.push({ x: centerX + x, y: centerY + y });
-      }
-
-      return points;
-    }
-
-    function animate() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-      for (let i = 0; i < particles.length; i++) {
-        const p = particles[i];
-
-        if (inHeartMode && p.tx !== null && p.ty !== null) {
-          p.x += (p.tx - p.x) * 0.02;
-          p.y += (p.ty - p.y) * 0.02;
-        } else {
-          p.y += p.speedY;
-          if (p.y > canvas.height) {
-            p.y = -10;
-            p.x = Math.random() * canvas.width;
-          }
-        }
-
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fillStyle = "#ff69b4";
-        ctx.fill();
-      }
-
-      requestAnimationFrame(animate);
-    }
-
-    animate();
-
-    setTimeout(() => {
-      const btn = document.getElementById("heartButton");
-      btn.style.display = "block";
-      setTimeout(() => btn.classList.add("visible"), 50);
-    }, 3000);
-
-    document.getElementById("heartButton").addEventListener("click", () => {
-      const heartPoints = generateHeartPoints();
-      for (let i = 0; i < particles.length; i++) {
-        const point = heartPoints[i % heartPoints.length];
-        particles[i].tx = point.x;
-        particles[i].ty = point.y;
-      }
-      inHeartMode = true;
-
-      // sumir botão com fade out
-      const btn = document.getElementById("heartButton");
-      btn.classList.remove("visible");
-      setTimeout(() => {
-        btn.style.display = "none";
-      }, 1000);
-
-      // digitar texto só uma vez
-      if (!textTyped) {
-        const fullText = "É que\n eu te amo...";
-        const textElement = document.getElementById("loveText");
-        textElement.style.opacity = 1;
-
-        let index = 0;
-        function typeWriter() {
-          if (index <= fullText.length) {
-            textElement.textContent = fullText.slice(0, index);
-            index++;
-            setTimeout(typeWriter, 100);
-          }
-        }
-        setTimeout(typeWriter, 1000);
-        textTyped = true;
-      }
-    });
-
-    window.addEventListener("resize", () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    });
-  </script>
+    heartCanvas.width = window.innerWidth;
+    heartCanvas.height = window.innerHeight;
+  });
+</script>
 </body>
 </html>
