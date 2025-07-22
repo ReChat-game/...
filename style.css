@@ -9,10 +9,20 @@ body {
   position: absolute;
   top: 0;
   left: 0;
+  z-index: 1;
+}
+
+#heartParticlesCanvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 2;
 }
 
 #heartButton {
   position: absolute;
+  top: 75%;
   left: 50%;
   transform: translateX(-50%);
   background-color: #c71585;
@@ -24,8 +34,13 @@ body {
   padding: 10px 30px;
   cursor: pointer;
   z-index: 10;
-  transition: background-color 0.3s ease;
+  transition: opacity 1s ease;
+  opacity: 0;
   display: none;
+}
+
+#heartButton.visible {
+  opacity: 1;
 }
 
 #heartButton:hover {
@@ -39,9 +54,13 @@ body {
   transform: translate(-50%, -50%);
   color: #ff69b4;
   font-family: 'Great Vibes', cursive;
-  font-size: 2em;
+  font-size: 3em;
+  line-height: 1;
+  max-width: 250px;
   text-align: center;
   white-space: pre-line;
   z-index: 5;
   opacity: 0;
+  user-select: none;
+  pointer-events: none;
 }
