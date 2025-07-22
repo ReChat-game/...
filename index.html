@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>...</title>
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <canvas id="particleCanvas"></canvas>
+  <button id="heartButton">Clique aqui</button>
+  <div id="loveText"></div>
+
+  <script>
+    const canvas = document.getElementById("particleCanvas");
+    const ctx = canvas.getContext("2d");
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const particles = [];
+    const numParticles = 300;
+    let inHeartMode = false;
+
+    for (let i = 0; i < numParticles; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        size: 3,
+        speedY: 0.3 + Math.random() * 0.5,
+        tx: null,
+        ty: null,
+      });
+    }
+
+    function generateHeartPoints() {
+      const points = [];
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2;
+      const scale = 10;
+
+      for (let t = 0; t < Math.PI * 2; t += 0.05) {
+        const x = scale * 16 * Math.pow(Math.sin(t), 3);
+        const y =
+          -scale *
+          (13 * Math.cos(t) -
+            5 * Math.cos(2 * t) -
+            2 * Math.cos(3 * t) -
+            Math.cos(4 * t));
+        points.push({ x: centerX + x, y: centerY + y });
+      }
+
+      return points;
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
+
+        if (inHeartMode && p.tx !== null && p.ty !== null) {
+          p.x += (p.tx - p.x) * 0.02;
+          p.y += (p.ty - p.y) * 0.02;
+        } else {
+          p.y += p.speedY;
+          if (p.y > canvas.height) {
+            p.y = -10;
+            p.x = Math.random() * canvas.width;
+          }
+        }
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = "#ff69b4";
+        ctx.fill();
+      }
+
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+
+    setTimeout(() => {
+      document.getElementById("heartButton").style.display = "block";
+    }, 3000);
+
+    document.getElementById("heartButton").addEventListener("click", () => {
+      const heartPoints = generateHeartPoints();
+      for (let i = 0; i < particles.length; i++) {
+        const point = heartPoints[i % heartPoints.length];
+        particles[i].tx = point.x;
+        particles[i].ty = point.y;
+      }
+      inHeartMode = true;
+
+      // Texto máquina de escrever
+      const fullText = "É que\n eu te amo...";
+      const textElement = document.getElementById("loveText");
+      textElement.style.opacity = 1;
+
+      let index = 0;
+      function typeWriter() {
+        if (index <= fullText.length) {
+          textElement.textContent = fullText.slice(0, index);
+          index++;
+          setTimeout(typeWriter, 100);
+        }
+      }
+      setTimeout(typeWriter, 1000);
+    });
+
+    window.addEventListener("resize", () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+  </script>
+</body>
+</html>
