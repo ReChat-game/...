@@ -1,0 +1,48 @@
+body {
+  margin: 0;
+  overflow: hidden;
+  background-color: black;
+  font-family: 'Great Vibes', cursive;
+}
+
+#particleCanvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+#heartButton {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #c71585;
+  color: white;
+  font-family: 'Great Vibes', cursive;
+  font-size: 1.5em;
+  border: 2px solid #ff69b4;
+  border-radius: 20px;
+  padding: 10px 30px;
+  cursor: pointer;
+  z-index: 10;
+  transition: background-color 0.3s ease;
+  display: none;
+}
+
+#heartButton:hover {
+  background-color: #ff1493;
+}
+
+#loveText {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: #ff69b4;
+  font-family: 'Great Vibes', cursive;
+  font-size: 3em;
+  text-align: center;
+  white-space: pre-line;
+  z-index: 5;
+  opacity: 0;
+}
