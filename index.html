@@ -5,6 +5,23 @@
   <title>...</title>
   <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="style.css" />
+  <style>
+    /* Essas mudanças podem ir no style.css também se preferir */
+    #heartButton {
+      top: 60% !important; /* mais pra baixo */
+      opacity: 0;
+      transition: opacity 1s ease;
+      display: block !important; /* para controlar via JS */
+    }
+
+    #heartButton.visible {
+      opacity: 1;
+    }
+
+    #loveText {
+      font-size: 2em !important; /* menor */
+    }
+  </style>
 </head>
 <body>
   <canvas id="particleCanvas"></canvas>
@@ -20,6 +37,7 @@
     const particles = [];
     const numParticles = 300;
     let inHeartMode = false;
+    let textTyped = false; // para digitar só uma vez
 
     for (let i = 0; i < numParticles; i++) {
       particles.push({
@@ -80,8 +98,12 @@
 
     animate();
 
+    // Mostrar botão após 3 segundos com fade-in
     setTimeout(() => {
-      document.getElementById("heartButton").style.display = "block";
+      const btn = document.getElementById("heartButton");
+      btn.style.display = "block";
+      // Delay para garantir o display antes da transição
+      setTimeout(() => btn.classList.add("visible"), 50);
     }, 3000);
 
     document.getElementById("heartButton").addEventListener("click", () => {
@@ -93,20 +115,23 @@
       }
       inHeartMode = true;
 
-      // Texto máquina de escrever
-      const fullText = "É que\n eu te amo...";
-      const textElement = document.getElementById("loveText");
-      textElement.style.opacity = 1;
+      // Digitar texto apenas uma vez
+      if (!textTyped) {
+        const fullText = "É que\n eu te amo...";
+        const textElement = document.getElementById("loveText");
+        textElement.style.opacity = 1;
 
-      let index = 0;
-      function typeWriter() {
-        if (index <= fullText.length) {
-          textElement.textContent = fullText.slice(0, index);
-          index++;
-          setTimeout(typeWriter, 100);
+        let index = 0;
+        function typeWriter() {
+          if (index <= fullText.length) {
+            textElement.textContent = fullText.slice(0, index);
+            index++;
+            setTimeout(typeWriter, 100);
+          }
         }
+        setTimeout(typeWriter, 1000);
+        textTyped = true;
       }
-      setTimeout(typeWriter, 1000);
     });
 
     window.addEventListener("resize", () => {
