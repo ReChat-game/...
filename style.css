@@ -13,9 +13,8 @@ body {
 
 #heartButton {
   position: absolute;
-  top: 50%;
   left: 50%;
-  transform: translate(-50%, -50%);
+  transform: translateX(-50%);
   background-color: #c71585;
   color: white;
   font-family: 'Great Vibes', cursive;
@@ -40,7 +39,7 @@ body {
   transform: translate(-50%, -50%);
   color: #ff69b4;
   font-family: 'Great Vibes', cursive;
-  font-size: 3em;
+  font-size: 2em;
   text-align: center;
   white-space: pre-line;
   z-index: 5;
